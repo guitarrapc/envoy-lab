@@ -1,0 +1,13 @@
+namespace: <namespace>
+resources:
+  - echo-service.yaml
+  - echo-statefulset.yaml
+  - envoy-deployment.yaml
+  - envoy-service.yaml
+  - namespace.yaml
+
+patches:
+  - envoy-configmap.yaml
+
+configMapGenerator:
+  - name: envoy-conf

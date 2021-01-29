@@ -1,0 +1,16 @@
+{
+  "service_name": "myservice_3",
+  "service": {
+    "hosts": [
+      {
+        "ip_address": "127.0.0.1",
+        "port": 8083,
+        "tags": {
+          "az": "us-central1-a",
+          "canary": false,
+          "load_balancing_weight": 50
+        }
+      }
+    ]
+  }
+}

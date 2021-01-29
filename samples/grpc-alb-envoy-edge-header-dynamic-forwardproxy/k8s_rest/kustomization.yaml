@@ -1,0 +1,14 @@
+namespace: <namespace>
+resources:
+  - echo-deployment.yaml
+  - echo-service.yaml
+  - envoy-deployment.yaml
+  - envoy-service.yaml
+  - ingress.yaml
+  - namespace.yaml
+
+patches:
+  - envoy-configmap.yaml
+
+configMapGenerator:
+  - name: envoy-conf

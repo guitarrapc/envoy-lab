@@ -1,0 +1,12 @@
+{
+  "version_info": "v2",
+  "type_url": "type.googleapis.com/envoy.api.v2.DiscoveryRequest",
+  "node": {
+    "build_version": "string",
+    "cluster": "string",
+    "id": "string"
+  },
+  "resource_names": [
+    "myservice"
+  ]
+}

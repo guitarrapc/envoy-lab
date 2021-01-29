@@ -1,0 +1,7 @@
+namespace: <namespace>
+resources:
+  - envoy-service.yaml
+  - envoy-configmap.yaml
+  - namespace.yaml
+  - reverse-deployment.yaml
+  - reverse-service.yaml

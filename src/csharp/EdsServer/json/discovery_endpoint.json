@@ -1,0 +1,10 @@
+{
+  "node": {
+    "build_version": "string",
+    "cluster": "string",
+    "id": "string"
+  },
+  "resource_names": [
+    "myservice"
+  ]
+}

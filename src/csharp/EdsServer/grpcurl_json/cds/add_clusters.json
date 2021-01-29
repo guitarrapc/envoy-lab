@@ -1,0 +1,27 @@
+{
+  "service_name": "my_clusters",
+  "service": {
+    "clusters": [
+      {
+        "name": "service_backend",
+        "type": "EDS",
+        "connect_timeout": "0.5s",
+        "drain_connections_on_host_removal": true,
+        "eds_cluster_config": {
+          "service_name": "myservice",
+          "eds_config": {
+            "api_config_source": {
+              "api_type": "GRPC",
+              "transport_api_version": "V2",
+              "grpc_services": {
+                "envoy_grpc": {
+                  "cluster_name": "xds_cluster"
+                }
+              }
+            }
+          }
+        }
+      }
+    ]
+  }
+}

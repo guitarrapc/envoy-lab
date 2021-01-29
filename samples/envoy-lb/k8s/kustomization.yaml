@@ -1,0 +1,8 @@
+namespace: envoy-grpc-lb
+resources:
+  - namespace.yaml
+  - client-configmap.yaml
+  - client-deployment.yaml
+  - server-configmap.yaml
+  - server-deployment.yaml
+  - server-service.yaml

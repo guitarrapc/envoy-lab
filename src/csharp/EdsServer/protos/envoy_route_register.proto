@@ -1,0 +1,83 @@
+syntax = "proto3";
+
+import "google/protobuf/empty.proto";
+
+option csharp_namespace = "GrpcEdsService";
+
+package envoy;
+
+// service definition.
+service RouteRegisterService {
+  // Sends a greeting
+  rpc List (google.protobuf.Empty) returns (RouteRegisterListResponse);
+  rpc Get (RouteRegisterGetRequest) returns (RouteRegisterRouteConfig);
+  rpc Add (RouteRegisterAddRequest) returns (RouteRegisterRouteConfig);
+  rpc Update (RouteRegisterUpdateRequest) returns (RouteRegisterRouteConfig);
+  rpc Delete (RouteRegisterDeleteRequest) returns (google.protobuf.Empty);
+}
+
+// The request message
+message RouteRegisterGetRequest {
+  string route_name = 1;
+}
+message RouteRegisterAddRequest {
+  string route_name = 1;
+  RouteRegisterRouteConfig route = 2;
+}
+message RouteRegisterUpdateRequest {
+  string route_name = 1;
+  RouteRegisterRouteConfig route = 2;
+}
+message RouteRegisterDeleteRequest {
+  string route_name = 1;
+}
+
+// The response message
+message RouteRegisterListResponse {
+  map<string, RouteRegisterRouteConfig> routes = 1;
+}
+
+// types
+message RouteRegisterRouteConfig {
+  string name = 1;
+  repeated RouteRegisterVirtualHost virtual_hosts = 2;
+}
+message RouteRegisterVirtualHost {
+  string name = 1;
+  repeated string domains = 2;
+  repeated RouteRegisterRouteMatch routes = 3;
+}
+message RouteRegisterRouteMatch {
+  RouteRegisterMatch match = 1;
+  RouteRegisterRoute route = 2;
+}
+message RouteRegisterMatch {
+  message GrpcRouteMatchOptions {
+  }
+  oneof path_specifier {
+    string prefix = 1;
+    string path = 2;
+    string regex = 3;
+    string safe_regex = 10;
+  }
+  bool case_sensitive = 4;
+  repeated RouteRegisterHeaderMatcher headers = 6;
+  GrpcRouteMatchOptions grpc = 8;
+}
+message RouteRegisterHeaderMatcher {
+  reserved 2, 3;
+  string name = 1;
+  oneof header_match_specifier {
+    string exact_match = 4;
+    string regex_match = 5;
+    string safe_regex_match = 11;
+
+    int64 range_match = 6;
+    bool present_match = 7;
+    string prefix_match = 9;
+    string suffix_match = 10;
+  }
+}
+message RouteRegisterRoute {
+  string cluster = 1;
+}

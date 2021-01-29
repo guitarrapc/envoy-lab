@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: grpc-client-deployment
+  labels:
+    app: grpc-client
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: grpc-client
+  template:
+    metadata:
+      labels:
+        app: grpc-client
+    spec:
+      volumes:
+        - name: envoy-config
+          configMap:
+            name: client-sidecar-envoy
+      containers:
+        - name: envoy
+          image: envoyproxy/envoy:v1.14.4
+          volumeMounts:
+            - name: envoy-config
+              mountPath: /var/opt/envoy
+          command: ["envoy", "-c", "/var/opt/envoy/envoy.yaml"]
+          resources:
+            limits:
+              memory: 512Mi
+          ports:
+            - name: app
+              containerPort: 5001
+            - name: envoy-admin
+              containerPort: 8001
+
+        - name: client
+          image: h3poteto/grpc_example-client-python:master
+          imagePullPolicy: Always
+          env:
+            - name: SERVER_IP
+              value: "127.0.0.1"
+            - name: SERVER_PORT
+              value: "9001"

@@ -1,0 +1,11 @@
+syntax = "proto3";
+
+import "google/protobuf/empty.proto";
+option csharp_namespace = "EchoGrpcMagicOnion";
+
+package AWS;
+
+service ALB{
+  // You don't need implement this service if status code 12 is enough.
+  rpc healthcheck (google.protobuf.Empty) returns (google.protobuf.Empty);
+}

@@ -1,0 +1,242 @@
+syntax = "proto3";
+
+import "google/protobuf/any.proto";
+import "google/protobuf/duration.proto";
+import "google/protobuf/empty.proto";
+import "google/protobuf/wrappers.proto";
+
+option csharp_namespace = "GrpcEdsService";
+
+package envoy;
+
+// service definition.
+service ClusterRegisterService {
+  // Sends a greeting
+  rpc List (google.protobuf.Empty) returns (ClusterRegisterListResponse);
+  rpc Get (ClusterRegisterGetRequest) returns (ClusterRegisterServiceItem);
+  rpc Add (ClusterRegisterAddRequest) returns (ClusterRegisterServiceItem);
+  rpc Update (ClusterRegisterUpdateRequest) returns (ClusterRegisterServiceItem);
+  rpc Delete (ClusterRegisterDeleteRequest) returns (google.protobuf.Empty);
+}
+
+// The request message
+message ClusterRegisterGetRequest {
+  string service_name = 1;
+}
+message ClusterRegisterAddRequest {
+  string service_name = 1;
+  ClusterRegisterServiceItem service = 2;
+}
+message ClusterRegisterUpdateRequest {
+  string service_name = 1;
+  ClusterRegisterServiceItem service = 2;
+}
+message ClusterRegisterDeleteRequest {
+  string service_name = 1;
+}
+
+// The response message
+message ClusterRegisterListResponse {
+  map<string, ClusterRegisterServiceItem> services = 1;
+}
+
+// types
+enum ClusterConfigApiVersion {
+  AUTO = 0;
+  V2 = 1;
+  V3 = 2;
+}
+message ClusterRegisterServiceItem {
+  repeated ClusterRegisterCluster clusters = 1;
+}
+message ClusterRegisterCluster {
+  enum DiscoveryType {
+    STATIC = 0;
+    STRICT_DNS = 1;
+    LOGICAL_DNS = 2;
+    EDS = 3;
+    ORIGINAL_DST = 4;
+  }
+  enum LbPolicy {
+    ROUND_ROBIN = 0;
+    LEAST_REQUEST = 1;
+    RING_HASH = 2;
+    RANDOM = 3;
+    ORIGINAL_DST_LB = 4;
+    MAGLEV = 5;
+    CLUSTER_PROVIDED = 6;
+    LOAD_BALANCING_POLICY_CONFIG = 7;
+  }
+  enum DnsLookupFamily {
+    AUTO = 0;
+    V4_ONLY = 1;
+    V6_ONLY = 2;
+  }
+  enum ClusterProtocolSelection {
+    USE_CONFIGURED_PROTOCOL = 0;
+    USE_DOWNSTREAM_PROTOCOL = 1;
+  }
+  message CustomClusterType {
+    string name = 1;
+    google.protobuf.Any typed_config = 2;
+  }
+  message EdsClusterConfig {
+    ClusterConfigSource eds_config = 1;
+    string service_name = 2;
+  }
+  string name = 1;
+  oneof cluster_discovery_type {
+    DiscoveryType type = 2;
+    CustomClusterType cluster_type = 38;
+  }
+  EdsClusterConfig eds_cluster_config = 3;
+  google.protobuf.Duration connect_timeout = 4;
+  google.protobuf.UInt32Value per_connection_buffer_limit_bytes = 5;
+  repeated ClusterHealthCheck health_checks = 8;
+  ClusterHttp2ProtocolOptions http2_protocol_options = 14;
+  bool close_connections_on_host_health_failure = 31;
+  bool drain_connections_on_host_removal = 32;
+}
+enum ClusterHealthStatus {
+  UNKNOWN = 0;
+  HEALTHY = 1;
+  UNHEALTHY = 2;
+  DRAINING = 3;
+  TIMEOUT = 4;
+  DEGRADED = 5;
+}
+message ClusterHealthCheck {
+  message Payload {
+    oneof payload {
+      string text = 1;
+      bytes binary = 2;
+    }
+  }
+  message HttpClusterHealthCheck {
+    message HeaderValue {
+      string key = 1;
+      string value = 2;
+    }
+    message HeaderValueOption {
+      HeaderValue header = 1;
+      google.protobuf.BoolValue append = 2;
+    }
+    string host = 1;
+    string path = 2;
+    Payload send = 3;
+    Payload receive = 4;
+    string service_name = 5;
+    repeated HeaderValueOption request_headers_to_add = 6;
+    repeated string request_headers_to_remove = 8;
+    bool use_http2 = 7;
+  }
+  message TcpClusterHealthCheck {
+    Payload send = 1;
+    repeated Payload receive = 2;
+  }
+  message GrpcClusterHealthCheck {
+    string service_name = 1;
+    string authority = 2;
+  }
+  message CustomClusterHealthCheck {
+    string name = 1;
+  }
+  message TlsOptions {
+    repeated string alpn_protocols = 1;
+  }
+  reserved 10;
+  google.protobuf.Duration timeout = 1;
+  google.protobuf.Duration interval = 2;
+  google.protobuf.Duration initial_jitter = 20;
+  google.protobuf.Duration interval_jitter = 3;
+  uint32 interval_jitter_percent = 18;
+  google.protobuf.UInt32Value unhealthy_threshold = 4;
+  google.protobuf.UInt32Value alt_port = 6;
+  google.protobuf.BoolValue reuse_connection = 7;
+  oneof health_checker {
+    HttpClusterHealthCheck http_health_check = 8;
+    TcpClusterHealthCheck tcp_health_check = 9;
+    GrpcClusterHealthCheck grpc_health_check = 11;
+    CustomClusterHealthCheck custom_health_check = 13;
+  }
+  google.protobuf.Duration no_traffic_interval = 12;
+  google.protobuf.Duration unhealthy_interval = 14;
+  google.protobuf.Duration unhealthy_edge_interval = 15;
+  google.protobuf.Duration healthy_edge_interval = 16;
+  string event_log_path = 17;
+  bool always_log_health_check_failures = 19;
+  TlsOptions tls_options = 21;
+}
+
+message ClusterApiClusterConfigSource {
+  enum ApiType {
+    UNSUPPORTED_REST_LEGACY = 0;
+    REST = 1;
+    GRPC = 2;
+    DELTA_GRPC = 3;
+  }
+  message GrpcService {
+    message EnvoyGrpc {
+      string cluster_name = 1;
+      string authority = 2;
+    }
+    EnvoyGrpc envoy_grpc = 1;
+  }
+  ApiType api_type = 1;
+  ClusterConfigApiVersion transport_api_version = 8;
+  repeated string cluster_names = 2;
+  repeated GrpcService grpc_services = 4;
+  google.protobuf.Duration refresh_delay = 3;
+  google.protobuf.Duration request_timeout = 5;
+  bool set_node_on_first_message_only = 7;
+}
+message ClusterAggregatedClusterConfigSource {
+}
+message ClusterSelfClusterConfigSource {
+}
+message ClusterConfigSource {
+  oneof config_source_specifier {
+    string path = 1;
+    ClusterApiClusterConfigSource api_config_source = 2;
+    ClusterAggregatedClusterConfigSource ads = 3;
+    ClusterSelfClusterConfigSource self = 5;
+  }
+  google.protobuf.Duration initial_fetch_timeout = 4;
+  ClusterConfigApiVersion resource_api_version = 6;
+}
+
+message ClusterHttp2ProtocolOptions {
+  message Percent {
+    double value = 1;
+  }
+  message KeepaliveSettings {
+    google.protobuf.Duration interval = 1;
+    google.protobuf.Duration timeout = 2;
+    Percent interval_jitter = 3;
+  }
+  message SettingsParameter {
+    google.protobuf.UInt32Value identifier = 1;
+    google.protobuf.UInt32Value value = 2;
+  }
+
+  google.protobuf.UInt32Value hpack_table_size = 1;
+  google.protobuf.UInt32Value max_concurrent_streams = 2;
+  google.protobuf.UInt32Value initial_stream_window_size = 3;
+  google.protobuf.UInt32Value initial_connection_window_size = 4;
+  bool allow_connect = 5;
+  bool allow_metadata = 6;
+  google.protobuf.UInt32Value max_outbound_frames = 7;
+  google.protobuf.UInt32Value max_outbound_control_frames = 8;
+  google.protobuf.UInt32Value max_consecutive_inbound_frames_with_empty_payload = 9;
+  google.protobuf.UInt32Value max_inbound_priority_frames_per_stream = 10;
+  google.protobuf.UInt32Value max_inbound_window_update_frames_per_data_frame_sent = 11;
+  bool stream_error_on_invalid_http_messaging = 12;
+  google.protobuf.BoolValue override_stream_error_on_invalid_http_message = 14;
+  repeated SettingsParameter custom_settings_parameters = 13;
+  KeepaliveSettings connection_keepalive = 15;
+}
+
+// [#not-implemented-hide:]
+message ClusterGrpcProtocolOptions {
+  ClusterHttp2ProtocolOptions http2_protocol_options = 1;
+}

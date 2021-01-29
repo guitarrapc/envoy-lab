@@ -1,0 +1,8 @@
+namespace: <namespace>
+resources:
+  - echo-deployment.yaml
+  - echo-service.yaml
+  - envoy-service.yaml
+  - namespace.yaml
+  - reverse-deployment.yaml
+  - reverse-service.yaml
