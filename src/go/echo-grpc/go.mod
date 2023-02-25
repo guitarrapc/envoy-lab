@@ -19,7 +19,6 @@ module github.com/GoogleCloudPlatform/grpc-gke-nlb-tutorial/echo-grpc
 go 1.12
 
 require (
-	github.com/golang/protobuf v1.3.1 // indirect
-	golang.org/x/net v0.0.0-20190522155817-f3200d17e092 // indirect
+	golang.org/x/net v0.7.0 // indirect
 	google.golang.org/grpc v1.29.1
 )
