@@ -19,6 +19,6 @@ module github.com/GoogleCloudPlatform/grpc-gke-nlb-tutorial/reverse-grpc
 go 1.12
 
 require (
-	golang.org/x/net v0.7.0 // indirect
+	golang.org/x/net v0.17.0 // indirect
 	google.golang.org/grpc v1.53.0
 )
