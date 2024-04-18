@@ -23,7 +23,7 @@ add nginx ingress to distribute EXTERANL host to svc.
 
 ### AWS
 
-add nlb annotations to k8s/envoy-service.yaml
+add nlb annotations to envoy-service.yaml
 
 ```yaml
 metadata:
@@ -40,10 +40,10 @@ deploy app and service.
 ```shell
 MY_DOMAIN=example.com
 NAMESPACE=grpc-gke-nlb-tutorial
-kubectl kustomize ./k8s |
-    sed -e "s|gcr.io/GOOGLE_CLOUD_PROJECT|guitarrapc|g" | 
-    sed -e "s|<namespace>|$NAMESPACE|g" | 
-    sed -e "s|<domain>|$MY_DOMAIN|g" | 
+kubectl kustomize ./grpc-nlb-envoy |
+    sed -e "s|gcr.io/GOOGLE_CLOUD_PROJECT|guitarrapc|g" |
+    sed -e "s|<namespace>|$NAMESPACE|g" |
+    sed -e "s|<domain>|$MY_DOMAIN|g" |
     kubectl apply -f -
 ```
 

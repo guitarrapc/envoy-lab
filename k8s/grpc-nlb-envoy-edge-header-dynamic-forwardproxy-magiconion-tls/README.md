@@ -16,7 +16,7 @@
 * envoy
 
 ```shell
-getenvoy run standard:1.16.0 -- -c ./envoy_config_dynamic.yaml
+getenvoy run standard:1.16.0 -- -c ./config/envoy_config_dynamic.yaml
 ```
 
 * upstream
@@ -42,7 +42,7 @@ curl http://$MY_DOMAIN:10000 # use envoy default route
 
 ### AWS
 
-add nlb annotations to k8s/envoy-service.yaml
+add nlb annotations to envoy-service.yaml
 
 ```yaml
 metadata:
@@ -67,7 +67,7 @@ docker push guitarrapc/echo-magiconion
 run envoy
 
 ```shell
-getenvoy run standard:1.16.0 -- -c ./envoy_config_dynamic.yaml
+getenvoy run standard:1.16.0 -- -c ./config/envoy_config_dynamic.yaml
 ```
 
 run server `EchoGrpcMagicOnion` with VS.
@@ -104,11 +104,11 @@ kubens $NAMESPACE
 
 deploy app
 ```shell
-kubectl kustomize ./k8s |
-    sed -e "s|gcr.io/GOOGLE_CLOUD_PROJECT|guitarrapc|g" | 
-    sed -e "s|<namespace>|$NAMESPACE|g" | 
+kubectl kustomize ./grpc-nlb-envoy-edge-header-dynamic-forwardproxy-magiconion-tls |
+    sed -e "s|gcr.io/GOOGLE_CLOUD_PROJECT|guitarrapc|g" |
+    sed -e "s|<namespace>|$NAMESPACE|g" |
     sed -e "s|\.default|.$NAMESPACE|g" |
-    sed -e "s|<domain>|$MY_DOMAIN|g" | 
+    sed -e "s|<domain>|$MY_DOMAIN|g" |
     kubectl apply -f -
 ```
 
@@ -129,4 +129,3 @@ streaming hub
 ```shell
 dotnet run --project EchoGrpcMagicOnion/EchoGrpcMagicOnion.Client/EchoGrpcMagicOnion.Client.csproj Stream -hostPort $MY_DOMAIN:12345 -H 'x-host-port: 10-1-0-210' -roomName "A" -userName "hoge"
 ```
-

@@ -2,7 +2,7 @@
 
 * run grpc under NLB with Envoy routing via Header.
 * NLB (TCP) + Envoy + grpc.
-* Routing: Header + k8s svc (Headless)
+* Routing: Header + k8s svc
 
 ## App image
 
@@ -22,7 +22,7 @@ add nginx ingress to distribute EXTERANL host to svc.
 
 ### AWS
 
-add nlb annotations to k8s/envoy-service.yaml
+add nlb annotations to envoy-service.yaml
 
 ```yaml
 metadata:
@@ -38,7 +38,7 @@ deploy app and service.
 
 ```shell
 MY_DOMAIN=envoy-proxy-edge-header.example.com
-NAMESPACE=grpc-nlb-envoy-edge-header-headless
+NAMESPACE=grpc-gke-nlb-edge-header
 ```
 
 prepare ns
@@ -57,19 +57,16 @@ kubectl create secret tls envoy-certs --key privkey.pem --cert cert.pem --dry-ru
 
 deploy app
 ```shell
-kubectl kustomize ./k8s |
-    sed -e "s|gcr.io/GOOGLE_CLOUD_PROJECT|guitarrapc|g" | 
-    sed -e "s|<namespace>|$NAMESPACE|g" | 
+kubectl kustomize ./grpc-nlb-envoy-edge-header |
+    sed -e "s|gcr.io/GOOGLE_CLOUD_PROJECT|guitarrapc|g" |
+    sed -e "s|<namespace>|$NAMESPACE|g" |
     sed -e "s|\.default|.$NAMESPACE|g" |
-    sed -e "s|<domain>|$MY_DOMAIN|g" | 
+    sed -e "s|<domain>|$MY_DOMAIN|g" |
     kubectl apply -f -
 ```
 
 ## test grpc response
 
-if local, add `127.0.0.1 envoy-proxy-edge-header.example.com` entry to /etc/hosts.
-
 ```shell
-envoy-proxy-edge-header.example.com=127.0.0.1
-grpcurl -d '{"content": "echo"}' -H 'x-pod-name: echo-grpc-0' -H 'method: POST' -proto ../../src/go/echo-grpc/api/echo.proto -insecure -v $MY_DOMAIN:443 api.Echo/Echo
+grpcurl -d '{"content": "echo"}' -H 'x-pod-name: pod-name' -H 'method: POST' -proto ../../src/go/echo-grpc/api/echo.proto -insecure -v $MY_DOMAIN:443 api.Echo/Echo
 ```

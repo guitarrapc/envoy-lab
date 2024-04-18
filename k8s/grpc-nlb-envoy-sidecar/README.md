@@ -1,15 +1,14 @@
 ## grpc-nlb-envoy-edge-header
 
-* run grpc under NLB with edge Envoy & sidecar Envoy.
-* NLB (TCP) + Envoy grpc.
-* Routing: NLB + k8s svc
+* run grpc under NLB with sidecar Envoy.
+* NLB (TCP) + grpc (envoy sidecar).
+* Routing: NLB
 
 ## App image
 
-* guitarrapc/echo-grpc
+* guitarrapc/reverse-grpc
 
 > https://github.com/guitarrapc/envoy-lab/blob/master/src/go/README.md
-
 
 ### Local (could not work.....)
 
@@ -22,7 +21,7 @@ add nginx ingress to distribute EXTERANL host to svc.
 
 ### AWS
 
-add nlb annotations to k8s/envoy-service.yaml
+add nlb annotations to envoy-service.yaml
 
 ```yaml
 metadata:
@@ -37,8 +36,8 @@ spec:
 deploy app and service.
 
 ```shell
-MY_DOMAIN=envoy-proxy-edge-sidecar.example.com
-NAMESPACE=grpc-gke-nlb-edge-sidecar-tutorial
+MY_DOMAIN=envoy-proxy-sidecar.example.com
+NAMESPACE=grpc-gke-nlb-sidecar-tutorial
 ```
 
 prepare ns
@@ -57,16 +56,16 @@ kubectl create secret tls envoy-certs --key privkey.pem --cert cert.pem --dry-ru
 
 deploy app
 ```shell
-kubectl kustomize ./k8s |
-    sed -e "s|gcr.io/GOOGLE_CLOUD_PROJECT|guitarrapc|g" | 
-    sed -e "s|<namespace>|$NAMESPACE|g" | 
+kubectl kustomize ./grpc-nlb-envoy-sidecar |
+    sed -e "s|gcr.io/GOOGLE_CLOUD_PROJECT|guitarrapc|g" |
+    sed -e "s|<namespace>|$NAMESPACE|g" |
     sed -e "s|\.default|.$NAMESPACE|g" |
-    sed -e "s|<domain>|$MY_DOMAIN|g" | 
+    sed -e "s|<domain>|$MY_DOMAIN|g" |
     kubectl apply -f -
 ```
 
 ## test grpc response
 
 ```shell
-grpcurl -d '{"content": "echo"}' -proto ../../src/go/echo-grpc/api/echo.proto -insecure -v $MY_DOMAIN:443 api.Echo/Echo
+grpcurl -d '{"content": "reverse"}' -proto reverse-grpc/api/reverse.proto -insecure -v $MY_DOMAIN:443 api.Reverse/Reverse
 ```

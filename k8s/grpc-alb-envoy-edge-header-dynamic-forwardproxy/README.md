@@ -23,7 +23,7 @@ add nginx ingress to distribute EXTERANL host to svc.
 
 ### AWS
 
-add alb annotations to k8s/ingress.yaml
+add alb annotations to ingress.yaml
 
 ```yaml
 metadata:
@@ -80,10 +80,10 @@ kubens $NAMESPACE
 
 deploy app
 ```shell
-kubectl kustomize ./k8s_rest |
-    sed -e "s|<namespace>|$NAMESPACE|g" | 
+kubectl kustomize ./grpc-alb-envoy-edge-header-dynamic-forwardproxy/rest |
+    sed -e "s|<namespace>|$NAMESPACE|g" |
     sed -e "s|\.default|.$NAMESPACE|g" |
-    sed -e "s|<domain>|$MY_DOMAIN|g" | 
+    sed -e "s|<domain>|$MY_DOMAIN|g" |
     kubectl apply -f -
 ```
 
@@ -128,11 +128,11 @@ kubens $NAMESPACE
 
 deploy app
 ```shell
-kubectl kustomize ./k8s_rest_tls |
-    sed -e "s|<namespace>|$NAMESPACE|g" | 
+kubectl kustomize ./grpc-alb-envoy-edge-header-dynamic-forwardproxy/rest_tls |
+    sed -e "s|<namespace>|$NAMESPACE|g" |
     sed -e "s|\.default|.$NAMESPACE|g" |
     sed -e "s|<acm>|$ACM|g" |
-    sed -e "s|<domain>|$MY_DOMAIN|g" | 
+    sed -e "s|<domain>|$MY_DOMAIN|g" |
     kubectl apply -f -
 ```
 
@@ -177,12 +177,12 @@ kubens $NAMESPACE
 ```
 
 ```shell
-kubectl kustomize ./k8s_rest_http2 |
-    sed -e "s|<namespace>|$NAMESPACE|g" | 
+kubectl kustomize ./grpc-alb-envoy-edge-header-dynamic-forwardproxy/rest_http2 |
+    sed -e "s|<namespace>|$NAMESPACE|g" |
     sed -e "s|\.default|.$NAMESPACE|g" |
     sed -e "s|<acm>|$ACM|g" |
-    sed -e "s|<domain>|$MY_DOMAIN|g" | 
-    sed -e "s|<targetgroup>|$TARGET_GROUP|g" | 
+    sed -e "s|<domain>|$MY_DOMAIN|g" |
+    sed -e "s|<targetgroup>|$TARGET_GROUP|g" |
     kubectl apply -f -
 ```
 
@@ -225,13 +225,13 @@ kubens $NAMESPACE
 
 deploy app
 ```shell
-kubectl kustomize ./k8s_grpc_http2 |
-    sed -e "s|gcr.io/GOOGLE_CLOUD_PROJECT|guitarrapc|g" | 
-    sed -e "s|<namespace>|$NAMESPACE|g" | 
+kubectl kustomize ./grpc-alb-envoy-edge-header-dynamic-forwardproxy/grpc_http2 |
+    sed -e "s|gcr.io/GOOGLE_CLOUD_PROJECT|guitarrapc|g" |
+    sed -e "s|<namespace>|$NAMESPACE|g" |
     sed -e "s|\.default|.$NAMESPACE|g" |
     sed -e "s|<acm>|$ACM|g" |
-    sed -e "s|<domain>|$MY_DOMAIN|g" | 
-    sed -e "s|<targetgroup>|$TARGET_GROUP|g" | 
+    sed -e "s|<domain>|$MY_DOMAIN|g" |
+    sed -e "s|<targetgroup>|$TARGET_GROUP|g" |
     kubectl apply -f -
 ```
 
@@ -268,13 +268,13 @@ kubens $NAMESPACE
 
 deploy app
 ```shell
-kubectl kustomize ./k8s_grpc_grpc |
-    sed -e "s|gcr.io/GOOGLE_CLOUD_PROJECT|guitarrapc|g" | 
-    sed -e "s|<namespace>|$NAMESPACE|g" | 
+kubectl kustomize ./grpc-alb-envoy-edge-header-dynamic-forwardproxy/grpc_grpctg |
+    sed -e "s|gcr.io/GOOGLE_CLOUD_PROJECT|guitarrapc|g" |
+    sed -e "s|<namespace>|$NAMESPACE|g" |
     sed -e "s|\.default|.$NAMESPACE|g" |
     sed -e "s|<acm>|$ACM|g" |
-    sed -e "s|<domain>|$MY_DOMAIN|g" | 
-    sed -e "s|<targetgroup>|$TARGET_GROUP|g" | 
+    sed -e "s|<domain>|$MY_DOMAIN|g" |
+    sed -e "s|<targetgroup>|$TARGET_GROUP|g" |
     kubectl apply -f -
 ```
 
@@ -311,12 +311,12 @@ kubens $NAMESPACE
 
 deploy app
 ```shell
-kubectl kustomize ./k8s_grpc_magiconion |
-    sed -e "s|<namespace>|$NAMESPACE|g" | 
+kubectl kustomize ./grpc-alb-envoy-edge-header-dynamic-forwardproxy/grpc_magiconion |
+    sed -e "s|<namespace>|$NAMESPACE|g" |
     sed -e "s|\.default|.$NAMESPACE|g" |
     sed -e "s|<acm>|$ACM|g" |
-    sed -e "s|<domain>|$MY_DOMAIN|g" | 
-    sed -e "s|<targetgroup>|$TARGET_GROUP|g" | 
+    sed -e "s|<domain>|$MY_DOMAIN|g" |
+    sed -e "s|<targetgroup>|$TARGET_GROUP|g" |
     kubectl apply -f -
 ```
 
@@ -350,12 +350,12 @@ kubens $NAMESPACE
 
 deploy app
 ```shell
-kubectl kustomize ./k8s_grpc_magiconionv4 |
-    sed -e "s|gcr.io/GOOGLE_CLOUD_PROJECT|guitarrapc|g" | 
-    sed -e "s|<namespace>|$NAMESPACE|g" | 
+kubectl kustomize ./grpc-alb-envoy-edge-header-dynamic-forwardproxy/grpc_magiconionv4 |
+    sed -e "s|gcr.io/GOOGLE_CLOUD_PROJECT|guitarrapc|g" |
+    sed -e "s|<namespace>|$NAMESPACE|g" |
     sed -e "s|\.default|.$NAMESPACE|g" |
     sed -e "s|<acm>|$ACM|g" |
-    sed -e "s|<domain>|$MY_DOMAIN|g" | 
+    sed -e "s|<domain>|$MY_DOMAIN|g" |
     kubectl apply -f -
 ```
 
