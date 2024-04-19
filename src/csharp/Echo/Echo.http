@@ -1,0 +1,21 @@
+@Echo_HostAddress = http://localhost:5157
+
+GET {{Echo_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
+
+GET {{Echo_HostAddress}}/
+Accept: application/json
+
+### Docker
+
+@Echo_Docker_HostAddress = http://localhost:55006
+
+GET {{Echo_Docker_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
+
+GET {{Echo_Docker_HostAddress}}/
+Accept: application/json
