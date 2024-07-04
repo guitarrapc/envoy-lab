@@ -1,0 +1,29 @@
+name: build dotnet
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        paths: ["src/csharp/Echo"]
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: ${{ matrix.paths }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0
+      - name: dotnet restore
+        run: dotnet restore
+      - name: dotnet build
+        run: dotnet build
