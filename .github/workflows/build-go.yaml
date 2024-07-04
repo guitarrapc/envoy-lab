@@ -1,0 +1,27 @@
+name: build go
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        paths: ["src/go/client-grpc", "src/go/echo-grpc", "src/go/reverse-grpc"]
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: ${{ matrix.paths }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: 1.21
+      - name: Build
+        run: go build -v
