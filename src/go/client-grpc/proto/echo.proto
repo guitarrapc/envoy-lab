@@ -1,0 +1,18 @@
+// mkdir -p api && protoc --go_out=paths=source_relative:./api --go-grpc_out=paths=source_relative:./api --proto_path=proto proto/*.proto
+syntax = "proto3";
+
+package api;
+
+option go_package = "github.com/guitarrapc/envoy-lab/src/go/client-grpc/api";
+
+service Echo {
+  rpc Echo (EchoRequest) returns (EchoResponse) {}
+}
+
+message EchoRequest {
+  string content = 1;
+}
+
+message EchoResponse {
+  string content = 1;
+}

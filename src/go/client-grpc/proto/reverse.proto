@@ -1,0 +1,18 @@
+// mkdir -p api && protoc --go_out=paths=source_relative:./api --go-grpc_out=paths=source_relative:./api --proto_path=proto proto/reverse.proto
+syntax = "proto3";
+
+option go_package = "github.com/guitarrapc/envoy-lab/src/go/reverse-grpc/api";
+
+package api;
+
+service Reverse {
+  rpc Reverse (ReverseRequest) returns (ReverseResponse) {}
+}
+
+message ReverseRequest {
+  string content = 1;
+}
+
+message ReverseResponse {
+  string content = 1;
+}
