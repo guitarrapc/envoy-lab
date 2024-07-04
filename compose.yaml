@@ -8,11 +8,12 @@ services:
       - "9901:9901" # admin
     volumes:
       - ./config/envoy1.30.1.yaml:/etc/envoy/envoy.yaml
-
   service:
     build:
       context: ./src/csharp/Echo/
-
   echo-grpc:
+    build:
+      context: ./src/go/echo-grpc/
+  reverse-grpc:
     build:
       context: ./src/go/reverse-grpc/

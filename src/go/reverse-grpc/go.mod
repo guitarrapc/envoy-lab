@@ -14,7 +14,7 @@
 
 // https://github.com/golang/go/wiki/Modules
 
-module github.com/GoogleCloudPlatform/grpc-gke-nlb-tutorial/reverse-grpc
+module github.com/guitarrapc/envoy-lab/src/go/reverse-grpc
 
 go 1.19
 

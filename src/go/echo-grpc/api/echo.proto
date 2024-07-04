@@ -14,7 +14,7 @@
 
 syntax = "proto3";
 
-option go_package = "github.com/GoogleCloudPlatform/grpc-gke-nlb-tutorial/echo-grpc/api";
+option go_package = "github.com/guitarrapc/envoy-lab/src/go/echo-grpc/api";
 
 package api;
 

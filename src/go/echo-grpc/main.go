@@ -19,8 +19,8 @@ import (
 	"net"
 	"os"
 
-	"github.com/GoogleCloudPlatform/grpc-gke-nlb-tutorial/echo-grpc/api"
-	"github.com/GoogleCloudPlatform/grpc-gke-nlb-tutorial/echo-grpc/health"
+	"github.com/guitarrapc/envoy-lab/src/go/echo-grpc/api"
+	"github.com/guitarrapc/envoy-lab/src/go/echo-grpc/health"
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/health/grpc_health_v1"
