@@ -3,7 +3,8 @@ services:
     image: envoyproxy/envoy:v1.30.1
     command: ["envoy", "-c", "/etc/envoy/envoy.yaml"]
     ports:
-      - "8080:8080" # service
+      - "8080:8080" # echo
+      - "8081:8081" # grpc
       - "9901:9901" # admin
     volumes:
       - ./config/envoy1.30.1.yaml:/etc/envoy/envoy.yaml
@@ -11,3 +12,7 @@ services:
   service:
     build:
       context: ./src/csharp/Echo/
+
+  echo-grpc:
+    build:
+      context: ./src/go/reverse-grpc/

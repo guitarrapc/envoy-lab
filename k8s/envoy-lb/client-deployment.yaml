@@ -33,7 +33,6 @@ spec:
               containerPort: 5001
             - name: envoy-admin
               containerPort: 8001
-
         - name: client
           image: h3poteto/grpc_example-client-python:master
           imagePullPolicy: Always

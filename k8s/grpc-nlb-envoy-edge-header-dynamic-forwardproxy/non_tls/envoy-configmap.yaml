@@ -92,7 +92,11 @@ data:
           connect_timeout: 1s
           lb_policy: CLUSTER_PROVIDED
           ignore_health_on_host_removal: true
-          http2_protocol_options: {}
+          typed_extension_protocol_options:
+            envoy.extensions.upstreams.http.v3.HttpProtocolOptions:
+              "@type": type.googleapis.com/envoy.extensions.upstreams.http.v3.HttpProtocolOptions
+              explicit_http_config:
+                http2_protocol_options: {}
           cluster_type:
             name: envoy.clusters.dynamic_forward_proxy
             typed_config:

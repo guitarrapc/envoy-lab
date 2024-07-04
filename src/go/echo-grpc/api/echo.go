@@ -24,7 +24,9 @@ import (
 )
 
 // Server for the Echo gRPC API
-type Server struct{}
+type Server struct {
+	UnimplementedEchoServer
+}
 
 // Echo the content of the request
 func (s *Server) Echo(ctx context.Context, in *EchoRequest) (*EchoResponse, error) {
