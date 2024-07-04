@@ -363,3 +363,6 @@ src/grpc_HelloworldUnity/Assets/Plugins/
 *.csr
 *.pem
 *.srl
+
+# custom
+*.exe
