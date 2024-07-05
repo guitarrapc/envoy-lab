@@ -25,13 +25,17 @@ spec:
       containers:
         - name: envoy
           image: envoyproxy/envoy:v1.14.4
+          resources:
+            requests:
+              cpu: 100m
+              memory: 100Mi
+            limits:
+              cpu: 100m
+              memory: 100Mi
           volumeMounts:
             - name: envoy-config
               mountPath: /var/opt/envoy
           command: ["envoy", "-c", "/var/opt/envoy/envoy.yaml"]
-          resources:
-            limits:
-              memory: 512Mi
           ports:
             - name: app
               containerPort: 5001
@@ -41,6 +45,13 @@ spec:
         - name: python
           image: h3poteto/grpc_example-server-python:master
           imagePullPolicy: Always
+          resources:
+            requests:
+              cpu: 100m
+              memory: 100Mi
+            limits:
+              cpu: 100m
+              memory: 100Mi
           ports:
             - name: grpc
               containerPort: 50051

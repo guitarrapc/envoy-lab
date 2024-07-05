@@ -30,6 +30,13 @@ spec:
         - name: echo-grpc
           image: gcr.io/GOOGLE_CLOUD_PROJECT/echo-grpc
           imagePullPolicy: IfNotPresent
+          resources:
+            requests:
+              cpu: 100m
+              memory: 100Mi
+            limits:
+              cpu: 100m
+              memory: 100Mi
           env:
             - name: "PORT"
               value: "8081"
