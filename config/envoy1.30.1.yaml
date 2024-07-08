@@ -64,6 +64,9 @@ static_resources:
                             prefix: "/api.Reverse/"
                           route:
                             cluster: reverse-grpc
+                          metadata:
+                            filter_metadata:
+                              envoy.filters.http.lua:
                 http_filters:
                   - name: envoy.filters.http.health_check
                     typed_config:
@@ -76,6 +79,15 @@ static_resources:
                         - name: "x-envoy-livenessprobe"
                           string_match:
                             exact: "healthz"
+                  - name: envoy.filters.http.lua
+                    typed_config:
+                      "@type": type.googleapis.com/envoy.extensions.filters.http.lua.v3.Lua
+                      default_source_code:
+                        # logDebug, logInfo, logWarn, logErr. Depends on envoy loglevel -l info.
+                        inline_string: |
+                          function envoy_on_response(response_handle)
+                            response_handle:headers():add("custom-header", "header_value_1")
+                          end
                   - name: envoy.filters.http.router
                     typed_config:
                       "@type": type.googleapis.com/envoy.extensions.filters.http.router.v3.Router

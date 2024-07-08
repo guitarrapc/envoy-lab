@@ -61,27 +61,28 @@ data:
                       - name: envoy.filters.http.lua
                         typed_config:
                           "@type": type.googleapis.com/envoy.extensions.filters.http.lua.v3.Lua
-                          inline_code: |
-                            function envoy_on_request(request_handle)
-                              local conf_svc = request_handle:metadata():get("svc")
-                              local conf_port = request_handle:metadata():get("port")
-                              local conf_header_key = request_handle:metadata():get("header")
-                              local conf_default_route = request_handle:metadata():get("default_route")
+                          default_source_code:
+                            inline_string: |
+                              function envoy_on_request(request_handle)
+                                local conf_svc = request_handle:metadata():get("svc")
+                                local conf_port = request_handle:metadata():get("port")
+                                local conf_header_key = request_handle:metadata():get("header")
+                                local conf_default_route = request_handle:metadata():get("default_route")
 
-                              -- handle header
-                              local xHostPort = conf_default_route
-                              local original = ""
-                              value = request_handle:headers():get(conf_header_key)
-                              if value ~= nil then
-                                request_handle:logDebug(string.format("Header %s: %s", conf_header_key, value))
-                                original = value
-                                xHostPort = string.format("%s%s:%s", value, conf_svc, conf_port)
+                                -- handle header
+                                local xHostPort = conf_default_route
+                                local original = ""
+                                value = request_handle:headers():get(conf_header_key)
+                                if value ~= nil then
+                                  request_handle:logDebug(string.format("Header %s: %s", conf_header_key, value))
+                                  original = value
+                                  xHostPort = string.format("%s%s:%s", value, conf_svc, conf_port)
+                                end
+                                request_handle:headers():replace(conf_header_key, xHostPort)
+
+                                -- debug log
+                                request_handle:logDebug(string.format("%s, original=%s, after=%s", conf_header_key, original, xHostPort, changed))
                               end
-                              request_handle:headers():replace(conf_header_key, xHostPort)
-
-                              -- debug log
-                              request_handle:logDebug(string.format("%s, original=%s, after=%s", conf_header_key, original, xHostPort, changed))
-                            end
                       - name: envoy.filters.http.dynamic_forward_proxy
                         typed_config:
                           "@type": type.googleapis.com/envoy.extensions.filters.http.dynamic_forward_proxy.v3.FilterConfig

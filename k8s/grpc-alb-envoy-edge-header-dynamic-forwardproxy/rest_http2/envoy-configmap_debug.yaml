@@ -68,50 +68,51 @@ data:
                       - name: envoy.filters.http.lua
                         typed_config:
                           "@type": type.googleapis.com/envoy.extensions.filters.http.lua.v3.Lua
-                          inline_code: |
-                            function envoy_on_request(request_handle)
-                              local conf_svc = request_handle:metadata():get("svc")
-                              local conf_port = request_handle:metadata():get("port")
-                              local conf_header_key = request_handle:metadata():get("header")
-                              local conf_default_route = request_handle:metadata():get("default_route")
+                          default_source_code:
+                            inline_string: |
+                              function envoy_on_request(request_handle)
+                                local conf_svc = request_handle:metadata():get("svc")
+                                local conf_port = request_handle:metadata():get("port")
+                                local conf_header_key = request_handle:metadata():get("header")
+                                local conf_default_route = request_handle:metadata():get("default_route")
 
-                              -- utilities
-                              function split(str, ts)
-                                if ts == nil then return {} end
-                                local t = {}
-                                i=1
-                                for s in string.gmatch(str, "([^"..ts.."]+)") do
-                                  t[i] = s
-                                  i = i + 1
-                                end
-                                return t
-                              end
-
-                              -- handle header
-                              local xHostPort = conf_default_route
-                              local host = ""
-                              local port = conf_port
-                              local original = ""
-                              for key, value in pairs(request_handle:headers()) do
-                                request_handle:logDebug(string.format("Header %s: %s",key, value))
-                                if key == conf_header_key then
-                                  original = value
-                                  kv = split(value, ":")
-                                  host = kv[1]
-                                  if kv[2] == nil then
-                                    port = conf_port
-                                  else
-                                    port = kv[2]
+                                -- utilities
+                                function split(str, ts)
+                                  if ts == nil then return {} end
+                                  local t = {}
+                                  i=1
+                                  for s in string.gmatch(str, "([^"..ts.."]+)") do
+                                    t[i] = s
+                                    i = i + 1
                                   end
-                                  xHostPort = string.format("%s%s:%s", host, conf_svc, port)
+                                  return t
                                 end
+
+                                -- handle header
+                                local xHostPort = conf_default_route
+                                local host = ""
+                                local port = conf_port
+                                local original = ""
+                                for key, value in pairs(request_handle:headers()) do
+                                  request_handle:logDebug(string.format("Header %s: %s",key, value))
+                                  if key == conf_header_key then
+                                    original = value
+                                    kv = split(value, ":")
+                                    host = kv[1]
+                                    if kv[2] == nil then
+                                      port = conf_port
+                                    else
+                                      port = kv[2]
+                                    end
+                                    xHostPort = string.format("%s%s:%s", host, conf_svc, port)
+                                  end
+                                end
+                                request_handle:headers():replace(conf_header_key, xHostPort)
+
+                                -- debug log
+                                request_handle:logDebug(string.format("%s, original=%s, after=%s", conf_header_key, original, xHostPort, changed))
+
                               end
-                              request_handle:headers():replace(conf_header_key, xHostPort)
-
-                              -- debug log
-                              request_handle:logDebug(string.format("%s, original=%s, after=%s", conf_header_key, original, xHostPort, changed))
-
-                            end
                       - name: envoy.filters.http.dynamic_forward_proxy
                         typed_config:
                           "@type": type.googleapis.com/envoy.extensions.filters.http.dynamic_forward_proxy.v3.FilterConfig
