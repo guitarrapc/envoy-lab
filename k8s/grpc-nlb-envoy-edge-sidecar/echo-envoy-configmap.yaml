@@ -37,9 +37,11 @@ data:
                   pass_through_mode: false
                   headers:
                   - name: ":path"
-                    exact_match: "/healthz"
+                    string_match:
+                      exact: "/healthz"
                   - name: "x-envoy-livenessprobe"
-                    exact_match: "healthz"
+                    string_match:
+                      exact: "healthz"
               - name: envoy.router
                 config: {}
       clusters:

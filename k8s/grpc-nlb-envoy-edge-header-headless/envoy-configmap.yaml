@@ -45,21 +45,24 @@ data:
                       prefix: "/api.Echo/"
                       headers:
                         - name: x-pod-name
-                          exact_match: "echo-grpc-0"
+                          string_match:
+                            exact: "echo-grpc-0"
                     route:
                       cluster: echo-grpc-0
                   - match:
                       prefix: "/api.Echo/"
                       headers:
                         - name: x-pod-name
-                          exact_match: "echo-grpc-1"
+                          string_match:
+                            exact: "echo-grpc-1"
                     route:
                       cluster: echo-grpc-1
                   - match:
                       prefix: "/api.Echo/"
                       headers:
                         - name: x-pod-name
-                          exact_match: "echo-grpc-2"
+                          string_match:
+                            exact: "echo-grpc-2"
                     route:
                       cluster: echo-grpc-2
                   - match:
@@ -72,9 +75,11 @@ data:
                   pass_through_mode: false
                   headers:
                   - name: ":path"
-                    exact_match: "/healthz"
+                    string_match:
+                      exact: "/healthz"
                   - name: "x-envoy-livenessprobe"
-                    exact_match: "healthz"
+                    string_match:
+                      exact: "healthz"
               - name: envoy.router
                 config: {}
           tls_context:

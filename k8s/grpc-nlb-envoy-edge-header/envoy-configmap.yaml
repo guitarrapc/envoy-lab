@@ -45,7 +45,8 @@ data:
                       prefix: "/api.Echo/"
                       headers:
                         - name: x-pod-name
-                          exact_match: "pod-name"
+                          string_match:
+                            exact: "pod-name"
                     route:
                       cluster: echo-grpc
               http_filters:
@@ -54,9 +55,11 @@ data:
                   pass_through_mode: false
                   headers:
                   - name: ":path"
-                    exact_match: "/healthz"
+                    string_match:
+                      exact: "/healthz"
                   - name: "x-envoy-livenessprobe"
-                    exact_match: "healthz"
+                    string_match:
+                      exact: "healthz"
               - name: envoy.router
                 config: {}
           tls_context:
