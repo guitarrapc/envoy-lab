@@ -35,14 +35,6 @@ static_resources:
                         - "*"
                       routes:
                         - match:
-                            prefix: "/"
-                          route:
-                            cluster: service
-                          metadata:
-                            filter_metadata:
-                              envoy.filters.http.lua:
-                                custom_value: "service"
-                        - match:
                             prefix: "/api.Echo/"
                           route:
                             cluster: echo-grpc
@@ -58,6 +50,14 @@ static_resources:
                             filter_metadata:
                               envoy.filters.http.lua:
                                 custom_value: "reverse"
+                        - match:
+                            prefix: "/"
+                          route:
+                            cluster: service
+                          metadata:
+                            filter_metadata:
+                              envoy.filters.http.lua:
+                                custom_value: "service"
                 http_filters:
                   - name: envoy.filters.http.health_check
                     typed_config:
@@ -76,11 +76,6 @@ static_resources:
                       default_source_code:
                         # logDebug, logInfo, logWarn, logErr. Depends on envoy loglevel -l info.
                         inline_string: |
-                          function envoy_on_request(request_handle)
-                            body_length = request_handle:body():length()
-                            request_handle:headers():add("request_body_size", tostring(body_length))
-                          end
-
                           function envoy_on_response(response_handle)
                             local conf_value = response_handle:metadata():get("custom_value")
                             response_handle:headers():add("status", response_handle:headers():get(":status"))
