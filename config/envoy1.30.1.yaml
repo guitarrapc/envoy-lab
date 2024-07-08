@@ -60,6 +60,10 @@ static_resources:
                             prefix: "/api.Echo/"
                           route:
                             cluster: echo-grpc
+                          metadata:
+                            filter_metadata:
+                              envoy.filters.http.lua:
+                                custom_value: "echo"
                         - match:
                             prefix: "/api.Reverse/"
                           route:
@@ -67,6 +71,7 @@ static_resources:
                           metadata:
                             filter_metadata:
                               envoy.filters.http.lua:
+                                custom_value: "reverse"
                 http_filters:
                   - name: envoy.filters.http.health_check
                     typed_config:
@@ -85,8 +90,15 @@ static_resources:
                       default_source_code:
                         # logDebug, logInfo, logWarn, logErr. Depends on envoy loglevel -l info.
                         inline_string: |
+                          function envoy_on_request(request_handle)
+                            request_handle:headers():add("xxxx", "9999")
+                            -- request_handle:headers():add("request_body_size", request_handle:body():length())
+                          end
+
                           function envoy_on_response(response_handle)
-                            response_handle:headers():add("custom-header", "header_value_1")
+                            local conf_value = response_handle:metadata():get("custom_value")
+                            response_handle:headers():add("status", response_handle:headers():get(":status"))
+                            response_handle:headers():add("custom-header", conf_value)
                           end
                   - name: envoy.filters.http.router
                     typed_config:

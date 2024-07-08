@@ -9,6 +9,7 @@ import (
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
+	"google.golang.org/grpc/metadata"
 )
 
 func main() {
@@ -28,11 +29,20 @@ func echoRequest(conn *grpc.ClientConn) {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 	defer cancel()
 
-	r, err := c.Echo(ctx, &pb.EchoRequest{Content: "hello"})
+	var headers metadata.MD
+
+	r, err := c.Echo(ctx, &pb.EchoRequest{Content: "hello"}, grpc.Header(&headers))
 	if err != nil {
 		log.Fatalf("could not greet: %v", err)
 	}
-	log.Printf("Echo: %s", r.Content)
+
+	var h string
+	if values := headers["custom-header"]; len(values) > 0 {
+		h = values[0]
+	}
+	log.Printf("Echo: %s, Header: %s", r.Content, h)
+
+	logHeaders(headers)
 }
 
 func reverseRequest(conn *grpc.ClientConn) {
@@ -41,9 +51,25 @@ func reverseRequest(conn *grpc.ClientConn) {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 	defer cancel()
 
-	r, err := c.Reverse(ctx, &pb.ReverseRequest{Content: "hello"})
+	var headers metadata.MD
+
+	r, err := c.Reverse(ctx, &pb.ReverseRequest{Content: "hello"}, grpc.Header(&headers))
 	if err != nil {
 		log.Fatalf("could not greet: %v", err)
 	}
-	log.Printf("Reverse: %s", r.Content)
+
+	var h string
+	if values := headers["custom-header"]; len(values) > 0 {
+		h = values[0]
+	}
+	log.Printf("Reverse: %s, Header: %s", r.Content, h)
+
+	logHeaders(headers)
+}
+
+func logHeaders(headers metadata.MD) {
+	log.Printf("  Header:")
+	for k, v := range headers {
+		log.Printf("    * %s: %s", k, v[0])
+	}
 }
