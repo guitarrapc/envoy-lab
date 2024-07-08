@@ -34,3 +34,16 @@ services:
       - ./grafana/dashboard.yaml:/etc/grafana/provisioning/dashboards/dashboard.yaml
       - ./grafana/datasource.yaml:/etc/grafana/provisioning/datasources/datasource.yaml
       - ./grafana/dashboards:/var/lib/grafana/dashboards
+  k6:
+    image: grafana/k6:0.52.0
+    command: ["run", "/scripts/service.js"]
+    depends_on:
+      - envoy
+      - service
+      - echo-grpc
+      - reverse-grpc
+      - grafana
+    ports:
+      - "6565:6565"
+    volumes:
+      - ./k6:/scripts

@@ -19,12 +19,12 @@ static_resources:
             - name: envoy.filters.network.http_connection_manager
               typed_config:
                 "@type": type.googleapis.com/envoy.extensions.filters.network.http_connection_manager.v3.HttpConnectionManager
-                access_log:
-                  - name: envoy.file_access_log
-                    typed_config:
-                      "@type": type.googleapis.com/envoy.extensions.access_loggers.file.v3.FileAccessLog
-                      path: "/dev/stdout"
-                      log_format:
+                # access_log:
+                #   - name: envoy.file_access_log
+                #     typed_config:
+                #       "@type": type.googleapis.com/envoy.extensions.access_loggers.file.v3.FileAccessLog
+                #       path: "/dev/stdout"
+                #       log_format:
                 codec_type: AUTO
                 stat_prefix: ingress_http
                 route_config:
@@ -90,10 +90,13 @@ static_resources:
       type: STRICT_DNS
       lb_policy: ROUND_ROBIN
       circuit_breakers:
+        # max_connection > max_requests, smaller thereshold will open circuit break and return 503. Otherwise, max_requests will be ignored.
+        # max_connections change cx_open 0 -> 1 when circuit break open.
+        # max_requests change rq_open 0 -> 1 when circuit break open.
         thresholds:
-          max_connections: 16384
-          max_pending_requests: 16384
-          max_requests: 16384
+          max_connections: 16384 # default 1024
+          max_requests: 16384 # default 1024
+          max_pending_requests: 16384 # default 1024
       load_assignment:
         cluster_name: service
         endpoints:
@@ -109,9 +112,9 @@ static_resources:
       lb_policy: ROUND_ROBIN
       circuit_breakers:
         thresholds:
-          max_connections: 16384
-          max_pending_requests: 16384
-          max_requests: 16384
+          max_connections: 16384 # default 1024
+          max_requests: 16384 # default 1024
+          max_pending_requests: 16384 # default 1024
       typed_extension_protocol_options:
         envoy.extensions.upstreams.http.v3.HttpProtocolOptions:
           "@type": type.googleapis.com/envoy.extensions.upstreams.http.v3.HttpProtocolOptions
@@ -137,9 +140,6 @@ static_resources:
       type: STRICT_DNS
       lb_policy: ROUND_ROBIN
       circuit_breakers:
-        # max_connection > max_requests, smaller thereshold will open circuit break and return 503. Otherwise, max_requests will be ignored.
-        # max_connections change cx_open 0 -> 1 when circuit break open.
-        # max_requests change rq_open 0 -> 1 when circuit break open.
         thresholds:
           max_connections: 16384 # default 1024
           max_requests: 16384 # default 1024
@@ -165,19 +165,9 @@ static_resources:
         healthy_threshold: 2
         grpc_health_check: {}
 
-layered_runtime:
-  layers:
-    - name: static_layer_0
-      static_layer:
-        envoy:
-          resource_limits:
-            listener:
-              example_listener_name:
-                connection_limit: 10000
-
 overload_manager:
   resource_monitors:
     - name: "envoy.resource_monitors.global_downstream_max_connections"
       typed_config:
         "@type": type.googleapis.com/envoy.extensions.resource_monitors.downstream_connections.v3.DownstreamConnectionsConfig
-        max_active_downstream_connections: 10000
+        max_active_downstream_connections: 16384
