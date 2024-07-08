@@ -35,6 +35,14 @@ static_resources:
                         - "*"
                       routes:
                         - match:
+                            prefix: "/"
+                          route:
+                            cluster: service
+                          metadata:
+                            filter_metadata:
+                              envoy.filters.http.lua:
+                                custom_value: "service"
+                        - match:
                             prefix: "/api.Echo/"
                           route:
                             cluster: echo-grpc
@@ -50,10 +58,6 @@ static_resources:
                             filter_metadata:
                               envoy.filters.http.lua:
                                 custom_value: "reverse"
-                        - match:
-                            prefix: "/"
-                          route:
-                            cluster: service
                 http_filters:
                   - name: envoy.filters.http.health_check
                     typed_config:

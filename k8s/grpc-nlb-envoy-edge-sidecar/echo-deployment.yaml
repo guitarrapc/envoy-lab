@@ -53,7 +53,7 @@ spec:
                 ["/bin/grpc_health_probe", "-addr=:8081", "-service=Check"]
             initialDelaySeconds: 10
         - name: envoy
-          image: envoyproxy/envoy:v1.30.1
+          image: envoyproxy/envoy:v1.30.4
           resources:
             requests:
               cpu: 100m
