@@ -101,8 +101,8 @@ static_resources:
                         # logDebug, logInfo, logWarn, logErr. Depends on envoy loglevel -l info.
                         inline_string: |
                           function envoy_on_request(request_handle)
-                            request_handle:headers():add("xxxx", "9999")
-                            -- request_handle:headers():add("request_body_size", request_handle:body():length())
+                            body_length = request_handle:body():length()
+                            request_handle:headers():add("request_body_size", tostring(body_length))
                           end
 
                           function envoy_on_response(response_handle)
@@ -118,6 +118,11 @@ static_resources:
     - name: service
       type: STRICT_DNS
       lb_policy: ROUND_ROBIN
+      circuit_breakers:
+        thresholds:
+          max_connections: 16384
+          max_pending_requests: 16384
+          max_requests: 16384
       load_assignment:
         cluster_name: service
         endpoints:
@@ -131,11 +136,16 @@ static_resources:
       connect_timeout: 0.5s
       type: STRICT_DNS
       lb_policy: ROUND_ROBIN
+      circuit_breakers:
+        thresholds:
+          max_connections: 16384
+          max_pending_requests: 16384
+          max_requests: 16384
       typed_extension_protocol_options:
         envoy.extensions.upstreams.http.v3.HttpProtocolOptions:
           "@type": type.googleapis.com/envoy.extensions.upstreams.http.v3.HttpProtocolOptions
           explicit_http_config:
-            http2_protocol_options: {}
+            http2_protocol_options: {} # enable grpc
       load_assignment:
         cluster_name: echo-grpc
         endpoints:
@@ -154,13 +164,20 @@ static_resources:
     - name: reverse-grpc
       connect_timeout: 0.5s
       type: STRICT_DNS
-      dns_lookup_family: V4_ONLY
       lb_policy: ROUND_ROBIN
+      circuit_breakers:
+        # max_connection > max_requests, smaller thereshold will open circuit break and return 503. Otherwise, max_requests will be ignored.
+        # max_connections change cx_open 0 -> 1 when circuit break open.
+        # max_requests change rq_open 0 -> 1 when circuit break open.
+        thresholds:
+          max_connections: 16384 # default 1024
+          max_requests: 16384 # default 1024
+          max_pending_requests: 16384 # default 1024
       typed_extension_protocol_options:
         envoy.extensions.upstreams.http.v3.HttpProtocolOptions:
           "@type": type.googleapis.com/envoy.extensions.upstreams.http.v3.HttpProtocolOptions
           explicit_http_config:
-            http2_protocol_options: {}
+            http2_protocol_options: {} # enable grpc
       load_assignment:
         cluster_name: reverse-grpc
         endpoints:
