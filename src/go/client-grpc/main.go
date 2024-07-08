@@ -2,7 +2,12 @@ package main
 
 import (
 	"context"
+	"encoding/json"
+	"flag"
+	"fmt"
 	"log"
+	"net/http"
+	"os"
 	"time"
 
 	pb "github.com/guitarrapc/envoy-lab/src/go/client-grpc/api"
@@ -13,17 +18,63 @@ import (
 )
 
 func main() {
-	conn, err := grpc.NewClient("localhost:8081", grpc.WithTransportCredentials(insecure.NewCredentials()))
+	addr := flag.String("addr", "localhost:8080", "The address to connect to (host:port)")
+	flag.Parse()
+
+	if *addr == "" {
+		fmt.Println("Usage of the program:")
+		flag.PrintDefaults()
+		os.Exit(1)
+	}
+
+	// Web API
+	url := fmt.Sprintf("http://%s/weatherforecast", *addr)
+	httpEchoRequest(url)
+
+	// gRPC
+	conn, err := grpc.NewClient(*addr, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		log.Fatalf("did not connect: %v", err)
 	}
 	defer conn.Close()
 
-	echoRequest(conn)
-	reverseRequest(conn)
+	grpcEchoRequest(conn)
+	grpcReverseRequest(conn)
 }
 
-func echoRequest(conn *grpc.ClientConn) {
+func httpEchoRequest(url string) {
+	resp, err := http.Get(url)
+	if err != nil {
+		log.Fatalf("Failed to make request: %v", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		log.Fatalf("Request failed with status: %s", resp.Status)
+	}
+
+	// deserialize
+	var forecasts []WeatherForecast
+	if err := json.NewDecoder(resp.Body).Decode(&forecasts); err != nil {
+		log.Fatalf("Failed to decode response: %v", err)
+	}
+
+	// serialize again
+	jsonOutput, err := json.Marshal(forecasts)
+	if err != nil {
+		log.Fatalf("Failed to marshal response: %v", err)
+	}
+
+	log.Printf("Http: %s", jsonOutput)
+	log.Printf("  Unmarshalled:")
+
+	for _, forecast := range forecasts {
+		log.Printf("    * Date: %s, TemperatureC: %d, TemperatureF: %d, Summary: %s\n",
+			forecast.Date.Format(time.RFC3339), forecast.TemperatureC, forecast.TemperatureF, forecast.Summary)
+	}
+}
+
+func grpcEchoRequest(conn *grpc.ClientConn) {
 	c := pb.NewEchoClient(conn)
 
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
@@ -40,12 +91,12 @@ func echoRequest(conn *grpc.ClientConn) {
 	if values := headers["custom-header"]; len(values) > 0 {
 		h = values[0]
 	}
-	log.Printf("Echo: %s, Header: %s", r.Content, h)
+	log.Printf("gRPC Echo: %s, Header: %s", r.Content, h)
 
 	logHeaders(headers)
 }
 
-func reverseRequest(conn *grpc.ClientConn) {
+func grpcReverseRequest(conn *grpc.ClientConn) {
 	c := pb.NewReverseClient(conn)
 
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
@@ -62,7 +113,7 @@ func reverseRequest(conn *grpc.ClientConn) {
 	if values := headers["custom-header"]; len(values) > 0 {
 		h = values[0]
 	}
-	log.Printf("Reverse: %s, Header: %s", r.Content, h)
+	log.Printf("gRPC Reverse: %s, Header: %s", r.Content, h)
 
 	logHeaders(headers)
 }
