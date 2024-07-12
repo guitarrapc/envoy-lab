@@ -32,7 +32,7 @@ type Server struct {
 
 // Reverse the content of the request
 func (s *Server) Reverse(ctx context.Context, in *ReverseRequest) (*ReverseResponse, error) {
-	log.Printf("Handling Reverse request [%v] with context %v", in, ctx)
+	// log.Printf("Handling Reverse request [%v] with context %v", in, ctx)
 	hostname, err := os.Hostname()
 	if err != nil {
 		log.Printf("Unable to get hostname %v", err)

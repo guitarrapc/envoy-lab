@@ -37,6 +37,8 @@ services:
   k6:
     image: grafana/k6:0.52.0
     command: ["run", "/scripts/service.js"]
+    # command: ["run", "/scripts/echo-grpc.js"]
+    # command: ["run", "/scripts/reverse-grpc.js"]
     depends_on:
       - envoy
       - service

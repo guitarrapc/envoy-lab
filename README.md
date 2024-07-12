@@ -11,7 +11,6 @@ kubectl port-forward $(kubectl get pods -o name | grep envoy | head -n1) 8080:99
 
 now you can acces to admin portal via `localhost:8080`
 
-
 # Envoy Benchmark
 
 > [!TIP]

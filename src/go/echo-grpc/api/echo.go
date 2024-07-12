@@ -30,7 +30,7 @@ type Server struct {
 
 // Echo the content of the request
 func (s *Server) Echo(ctx context.Context, in *EchoRequest) (*EchoResponse, error) {
-	log.Printf("Handling Echo request [%v] with context %v", in, ctx)
+	// log.Printf("Handling Echo request [%v] with context %v", in, ctx)
 	hostname, err := os.Hostname()
 	if err != nil {
 		log.Printf("Unable to get hostname %v", err)
