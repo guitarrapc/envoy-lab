@@ -24,7 +24,6 @@ static_resources:
                 #     typed_config:
                 #       "@type": type.googleapis.com/envoy.extensions.access_loggers.file.v3.FileAccessLog
                 #       path: "/dev/stdout"
-                #       log_format:
                 codec_type: AUTO
                 stat_prefix: ingress_http
                 route_config:
@@ -34,8 +33,43 @@ static_resources:
                       domains:
                         - "*"
                       routes:
+                        # gRPC dynamic forward proxy based on heaer X-Host-Port
+                        - match:
+                            prefix: "/"
+                            grpc: {}
+                            headers:
+                              - name: X-Host-Port
+                                present_match: true
+                          route:
+                            cluster: dynamic_forward_proxy_grpc_cluster
+                          metadata:
+                            filter_metadata:
+                              envoy.filters.http.lua:
+                                custom_value: "dynamic_forward_proxy"
+                          typed_per_filter_config:
+                            envoy.filters.http.dynamic_forward_proxy:
+                              "@type": type.googleapis.com/envoy.extensions.filters.http.dynamic_forward_proxy.v3.PerRouteConfig
+                              host_rewrite_header: X-Host-Port
+                        # http dynamic forward proxy based on heaer X-Host-Port
+                        - match:
+                            prefix: "/"
+                            headers:
+                              - name: X-Host-Port
+                                present_match: true
+                          route:
+                            cluster: dynamic_forward_proxy_http_cluster
+                          metadata:
+                            filter_metadata:
+                              envoy.filters.http.lua:
+                                custom_value: "dynamic_forward_proxy"
+                          typed_per_filter_config:
+                            envoy.filters.http.dynamic_forward_proxy:
+                              "@type": type.googleapis.com/envoy.extensions.filters.http.dynamic_forward_proxy.v3.PerRouteConfig
+                              host_rewrite_header: X-Host-Port
+                        # static routes
                         - match:
                             prefix: "/api.Echo/"
+                            grpc: {}
                           route:
                             cluster: echo-grpc
                           metadata:
@@ -44,6 +78,7 @@ static_resources:
                                 custom_value: "echo"
                         - match:
                             prefix: "/api.Reverse/"
+                            grpc: {}
                           route:
                             cluster: reverse-grpc
                           metadata:
@@ -59,6 +94,12 @@ static_resources:
                               envoy.filters.http.lua:
                                 custom_value: "service"
                 http_filters:
+                  - name: envoy.filters.http.dynamic_forward_proxy
+                    typed_config:
+                      "@type": type.googleapis.com/envoy.extensions.filters.http.dynamic_forward_proxy.v3.FilterConfig
+                      dns_cache_config:
+                        name: dynamic_forward_proxy_cache_config
+                        dns_lookup_family: V4_ONLY
                   - name: envoy.filters.http.health_check
                     typed_config:
                       "@type": type.googleapis.com/envoy.extensions.filters.http.health_check.v3.HealthCheck
@@ -164,6 +205,45 @@ static_resources:
         unhealthy_threshold: 2
         healthy_threshold: 2
         grpc_health_check: {}
+    - name: dynamic_forward_proxy_http_cluster
+      connect_timeout: 1s
+      lb_policy: CLUSTER_PROVIDED
+      circuit_breakers:
+        thresholds:
+          max_connections: 16384 # default 1024
+          max_pending_requests: 16384 # default 1024
+          max_requests: 16384 # default 1024
+      ignore_health_on_host_removal: true
+      cluster_type:
+        name: envoy.clusters.dynamic_forward_proxy
+        typed_config:
+          "@type": type.googleapis.com/envoy.extensions.clusters.dynamic_forward_proxy.v3.ClusterConfig
+          allow_insecure_cluster_options: true # allow grpc over http
+          dns_cache_config:
+            name: dynamic_forward_proxy_cache_config
+            dns_lookup_family: V4_ONLY
+    - name: dynamic_forward_proxy_grpc_cluster
+      connect_timeout: 1s
+      lb_policy: CLUSTER_PROVIDED
+      circuit_breakers:
+        thresholds:
+          max_connections: 16384 # default 1024
+          max_pending_requests: 16384 # default 1024
+          max_requests: 16384 # default 1024
+      typed_extension_protocol_options:
+        envoy.extensions.upstreams.http.v3.HttpProtocolOptions:
+          "@type": type.googleapis.com/envoy.extensions.upstreams.http.v3.HttpProtocolOptions
+          explicit_http_config:
+            http2_protocol_options: {} # enable grpc
+      ignore_health_on_host_removal: true
+      cluster_type:
+        name: envoy.clusters.dynamic_forward_proxy
+        typed_config:
+          "@type": type.googleapis.com/envoy.extensions.clusters.dynamic_forward_proxy.v3.ClusterConfig
+          allow_insecure_cluster_options: true # allow grpc over http
+          dns_cache_config:
+            name: dynamic_forward_proxy_cache_config
+            dns_lookup_family: V4_ONLY
 
 overload_manager:
   resource_monitors:

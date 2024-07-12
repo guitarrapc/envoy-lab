@@ -72,6 +72,7 @@ data:
             name: envoy.clusters.dynamic_forward_proxy
             typed_config:
               "@type": type.googleapis.com/envoy.extensions.clusters.dynamic_forward_proxy.v3.ClusterConfig
+              allow_insecure_cluster_options: true # allow grpc over http
               dns_cache_config:
                 name: dynamic_forward_proxy_cache_config
                 dns_lookup_family: V4_ONLY

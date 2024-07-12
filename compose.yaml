@@ -39,6 +39,9 @@ services:
     command: ["run", "/scripts/service.js"]
     # command: ["run", "/scripts/echo-grpc.js"]
     # command: ["run", "/scripts/reverse-grpc.js"]
+    # command: ["run", "/scripts/dynamic-service.js"]
+    # command: ["run", "/scripts/dynamic-echo-grpc.js"]
+    # command: ["run", "/scripts/dynamic-reverse-grpc.js"]
     depends_on:
       - envoy
       - service
