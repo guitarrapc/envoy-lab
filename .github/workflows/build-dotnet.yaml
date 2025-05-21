@@ -12,6 +12,8 @@ jobs:
     strategy:
       matrix:
         paths: ["src/csharp/Echo"]
+    permissions:
+      contents: read
     runs-on: ubuntu-latest
     timeout-minutes: 10
     defaults:
