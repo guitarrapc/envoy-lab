@@ -1,3 +1,5 @@
+[![build docker](https://github.com/guitarrapc/envoy-lab/actions/workflows/build-docker.yaml/badge.svg)](https://github.com/guitarrapc/envoy-lab/actions/workflows/build-docker.yaml) [![build dotnet](https://github.com/guitarrapc/envoy-lab/actions/workflows/build-dotnet.yaml/badge.svg)](https://github.com/guitarrapc/envoy-lab/actions/workflows/build-dotnet.yaml) [![build go](https://github.com/guitarrapc/envoy-lab/actions/workflows/build-go.yaml/badge.svg)](https://github.com/guitarrapc/envoy-lab/actions/workflows/build-go.yaml)
+
 ## envoy-lab
 
 ## Fundamentals
